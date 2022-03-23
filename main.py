@@ -1,6 +1,5 @@
 from collections.abc import MutableMapping
 from typing import List, Union
-import math
 
 PERTURB_SHIFT = 5
 
@@ -38,15 +37,12 @@ class HashMap(MutableMapping):
         if not self._is_rebalance_need():
             return
 
-        # tmp = 1
-        # self.size = round(self.size + (self.size * math.exp(tmp))/(self.size / 10))
         self.size = self.size * 2
         self._indices: List[Union[int, None]] = [None for i in range(self.size)]
         entries_copy = self._entries.copy()
         for hash_result, key, value in entries_copy:
             index = self._get_index(hash_result)
             self._set_item(hash_result, index, key, value, do_rebalance=False)
-        # tmp += 1
 
     def _get_hash_and_index(self, key):
         hash_result = hash(key)
@@ -149,18 +145,6 @@ class HashMap(MutableMapping):
             if h == hash_result and key == k:
                 return v
 
-    def __getkey__(self, key):
-        hash_result = hash(key)
-        index = self._get_index(hash_result)
-        if self._indices[index] is None:
-            raise KeyError(key)
-
-        for i in range(index, self.size):
-            entries_index = self._indices[i]
-            h, k, v = self._entries[entries_index]
-            if h == hash_result and key == k:
-                return k
-
     def __delitem__(self, key):
         hash_result, index = self._get_hash_and_index(key)
         for i in range(index, len(self._indices)):
@@ -174,33 +158,31 @@ class HashMap(MutableMapping):
     def __len__(self):
         return len(self._entries)
 
-    def __eq__(self, other):
-        for h, key, value in self._entries:
-            # h, k = self.__getkey__(key)
-            # print(value)
-            # print(other[key])
-            # print(key)
-            # print(other.__getkey__(key))
-            if len(self._entries) != len(other):
-                return NotImplemented
-            if value == other[key] and key == other.__getkey__(key):
-                continue
-            return NotImplemented
+    def __eq__(self, other) -> bool:
+        if len(self._entries) != len(other):
+            return False
+        try:
+            for h, key, value in self._entries:
+                if value != other[key]:
+                    return False
+        except KeyError as e:
+            return False
         return True
 
 
-# hm1 = HashMap()
-# hm2 = HashMap()
-# #hm2 = dict(a="a1")
-# hm1["a"] = "a1"
-# hm1["b"] = "b1"
-# # hm1["c"] = "a1"
-# hm2["a"] = "a1"
-# hm2["b"] = "b1"
-# # di = iter(hm1)
-# # print(f"Dict key 1 {next(di)}")
-# # print(f"Dict key 2 {next(di)}")
-# print(hm1 == hm2)
+hm1 = HashMap()
+hm2 = HashMap()
+#hm2 = dict(a="a1")
+hm1["a"] = "a1"
+hm1["b"] = "b1"
+# hm1["c"] = "a1"
+hm2["a"] = "a1"
+hm2["b"] = "b1"
+hm2["c"] = "c1"
+# di = iter(hm1)
+# print(f"Dict key 1 {next(di)}")
+# print(f"Dict key 2 {next(di)}")
+print(hm1 == hm2)
 
 
 hm = HashMap()
